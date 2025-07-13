@@ -77,7 +77,7 @@ def local_css():
                 border-radius: 15px;
                 font-size: 0.8em;
                 font-weight: 700;
-                color: #131722;
+                color: #ffffff; /* **UPDATED**: Changed to white for better contrast on all backgrounds */
                 display: inline-block;
             }
             
@@ -112,10 +112,11 @@ def local_css():
                 text-align: center;
                 font-size: 1.2em;
             }
-            .result-win { background-color: rgba(38, 166, 154, 0.2); border: 1px solid #26a69a; color: #26a69a;}
-            .result-loss { background-color: rgba(239, 83, 80, 0.2); border: 1px solid #ef5350; color: #ef5350;}
-            .result-invalid { background-color: rgba(108, 117, 125, 0.2); border: 1px solid #6c757d; color: #8a91a0;}
-            .result-entry { background-color: rgba(30, 136, 229, 0.2); border: 1px solid #1e88e5; color: #1e88e5;}
+            /* **UPDATED**: Brighter text colors for final results for better contrast */
+            .result-win { background-color: rgba(38, 166, 154, 0.2); border: 1px solid #26a69a; color: #50fa7b;}
+            .result-loss { background-color: rgba(239, 83, 80, 0.2); border: 1px solid #ef5350; color: #ff5555;}
+            .result-invalid { background-color: rgba(108, 117, 125, 0.2); border: 1px solid #6c757d; color: #b0b3b8;}
+            .result-entry { background-color: rgba(30, 136, 229, 0.2); border: 1px solid #1e88e5; color: #80aaff;}
 
             /* Responsive Grid for Idea List */
             @media (max-width: 768px) {
@@ -360,4 +361,3 @@ if st.session_state.current_view == 'list':
     render_list_view()
 else:
     render_checklist_view()
-
