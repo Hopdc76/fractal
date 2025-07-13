@@ -8,43 +8,62 @@ st.set_page_config(page_title="Checklist Giao Dịch Fractal", layout="wide", in
 def local_css():
     st.markdown("""
         <style>
+            /* --- NEW LIGHT THEME --- */
+            :root {
+                --bg-color: #ffffff;
+                --surface-color: #f0f2f6;
+                --primary-color: #d32f2f; /* Red for hover/accents */
+                --text-color: #212529;
+                --text-secondary-color: #6c757d;
+                --green-color: #28a745;
+                --red-color: #dc3545;
+                --yellow-color: #ffc107;
+                --blue-color: #007bff;
+                --border-color: #dee2e6;
+            }
+
             /* General Styles */
             .stApp {
-                background-color: #131722;
-                color: #e0e3e9;
+                background-color: var(--bg-color);
+                color: var(--text-color);
+            }
+            h1, h2, .stTextInput > label, .stTextArea > label {
+                color: var(--text-color) !important;
             }
             h1, h2 {
-                border-bottom: 2px solid #2962ff;
+                border-bottom: 2px solid var(--primary-color);
                 padding-bottom: 10px;
-                color: #ffffff;
             }
+            /* Input widgets */
+            .stTextInput>div>div>input, .stTextArea>textarea {
+                background-color: #ffffff;
+                color: var(--text-color);
+                border: 1px solid var(--border-color);
+            }
+
             .stButton>button {
                 width: 100%;
                 border-radius: 8px;
-                color: #ffffff;
                 font-weight: bold;
                 transition: all 0.3s ease;
-                border: 1px solid #4a4a4a;
+                background-color: #ffffff; /* White background for buttons */
+                color: var(--text-color); /* Black text */
+                border: 1px solid var(--border-color);
             }
             .stButton>button:hover {
-                opacity: 0.8;
-                border-color: #2962ff;
-            }
-            .stButton>button.primary {
-                background-color: #2962ff;
-            }
-            .stButton>button.secondary {
-                background-color: #6c757d;
+                color: var(--primary-color); /* Red text on hover */
+                border-color: var(--primary-color); /* Red border on hover */
+                background-color: #f8f9fa;
             }
             
             /* Idea Item Card Styles */
             .idea-card {
                 border-left: 5px solid transparent;
-                background-color: #1e222d;
+                background-color: var(--surface-color);
                 padding: 15px 20px;
                 border-radius: 10px;
                 margin-bottom: 1rem;
-                box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+                box-shadow: 0 4px 6px rgba(0,0,0,0.05);
                 transition: transform 0.2s ease-in-out;
             }
             .idea-card:hover {
@@ -60,16 +79,16 @@ def local_css():
             .idea-title {
                 font-size: 1.25em;
                 font-weight: 700;
-                color: #ffffff;
+                color: var(--text-color);
             }
             .idea-htf {
                 font-style: italic;
-                color: #8a91a0;
+                color: var(--text-secondary-color);
                 margin-left: 8px;
             }
             .idea-desc {
                 font-size: 0.95em;
-                color: #b0b3b8;
+                color: var(--text-secondary-color);
                 margin-bottom: 15px;
             }
             .idea-status {
@@ -77,22 +96,22 @@ def local_css():
                 border-radius: 15px;
                 font-size: 0.8em;
                 font-weight: 700;
-                color: #ffffff; /* **UPDATED**: Changed to white for better contrast on all backgrounds */
+                color: #ffffff; /* White text for all badges for contrast */
                 display: inline-block;
             }
             
             /* Status Colors */
-            .status-pending { background-color: #ffca28; }
-            .status-entry { background-color: #1e88e5; }
-            .status-invalid { background-color: #ef5350; }
-            .status-win { background-color: #26a69a; }
-            .status-loss { background-color: #ef5350; }
+            .status-pending { background-color: var(--yellow-color); }
+            .status-entry { background-color: var(--blue-color); }
+            .status-invalid { background-color: var(--red-color); }
+            .status-win { background-color: var(--green-color); }
+            .status-loss { background-color: var(--red-color); }
             
-            .border-pending { border-left-color: #ffca28; }
-            .border-entry { border-left-color: #1e88e5; }
-            .border-invalid { border-left-color: #ef5350; }
-            .border-win { border-left-color: #26a69a; }
-            .border-loss { border-left-color: #ef5350; }
+            .border-pending { border-left-color: var(--yellow-color); }
+            .border-entry { border-left-color: var(--blue-color); }
+            .border-invalid { border-left-color: var(--red-color); }
+            .border-win { border-left-color: var(--green-color); }
+            .border-loss { border-left-color: var(--red-color); }
 
             /* Checklist View Styles */
             .checklist-container {
@@ -100,10 +119,10 @@ def local_css():
                 margin: auto;
             }
             .question-box {
-                background-color: #2a2e39;
+                background-color: var(--surface-color);
                 padding: 20px;
                 border-radius: 10px;
-                border: 1px solid #444;
+                border: 1px solid var(--border-color);
             }
             .final-result {
                 padding: 20px;
@@ -112,11 +131,10 @@ def local_css():
                 text-align: center;
                 font-size: 1.2em;
             }
-            /* **UPDATED**: Brighter text colors for final results for better contrast */
-            .result-win { background-color: rgba(38, 166, 154, 0.2); border: 1px solid #26a69a; color: #50fa7b;}
-            .result-loss { background-color: rgba(239, 83, 80, 0.2); border: 1px solid #ef5350; color: #ff5555;}
-            .result-invalid { background-color: rgba(108, 117, 125, 0.2); border: 1px solid #6c757d; color: #b0b3b8;}
-            .result-entry { background-color: rgba(30, 136, 229, 0.2); border: 1px solid #1e88e5; color: #80aaff;}
+            .result-win { background-color: rgba(40, 167, 69, 0.1); border: 1px solid var(--green-color); color: var(--green-color);}
+            .result-loss { background-color: rgba(220, 53, 69, 0.1); border: 1px solid var(--red-color); color: var(--red-color);}
+            .result-invalid { background-color: rgba(108, 117, 125, 0.1); border: 1px solid var(--text-secondary-color); color: var(--text-secondary-color);}
+            .result-entry { background-color: rgba(0, 123, 255, 0.1); border: 1px solid var(--blue-color); color: var(--blue-color);}
 
             /* Responsive Grid for Idea List */
             @media (max-width: 768px) {
