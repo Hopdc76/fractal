@@ -1,8 +1,8 @@
 import streamlit as st
 import uuid
 
-# Cấu hình trang
-st.set_page_config(page_title="Checklist Giao Dịch Fractal", layout="wide")
+# Cấu hình trang, đặt ở đầu file
+st.set_page_config(page_title="Checklist Giao Dịch Fractal", layout="wide", initial_sidebar_state="collapsed")
 
 # --- CSS Tùy chỉnh để giao diện đẹp hơn ---
 def local_css():
@@ -16,47 +16,68 @@ def local_css():
             h1, h2 {
                 border-bottom: 2px solid #2962ff;
                 padding-bottom: 10px;
+                color: #ffffff;
             }
             .stButton>button {
                 width: 100%;
-                border-radius: 5px;
+                border-radius: 8px;
                 color: #ffffff;
                 font-weight: bold;
                 transition: all 0.3s ease;
+                border: 1px solid #4a4a4a;
             }
             .stButton>button:hover {
                 opacity: 0.8;
+                border-color: #2962ff;
+            }
+            .stButton>button.primary {
+                background-color: #2962ff;
+            }
+            .stButton>button.secondary {
+                background-color: #6c757d;
             }
             
-            /* Idea Item Styles */
-            [data-testid="stVerticalBlock"] {
+            /* Idea Item Card Styles */
+            .idea-card {
                 border-left: 5px solid transparent;
-                background-color: #2a2e39;
-                padding: 15px !important;
-                border-radius: 8px;
+                background-color: #1e222d;
+                padding: 15px 20px;
+                border-radius: 10px;
                 margin-bottom: 1rem;
+                box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+                transition: transform 0.2s ease-in-out;
             }
-            .idea-ticker {
+            .idea-card:hover {
+                transform: translateY(-3px);
+            }
+
+            .idea-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: flex-start;
+                margin-bottom: 10px;
+            }
+            .idea-title {
+                font-size: 1.25em;
                 font-weight: 700;
-                font-size: 1.2em;
-                color: #fff;
+                color: #ffffff;
             }
             .idea-htf {
                 font-style: italic;
                 color: #8a91a0;
-                margin: 0 5px;
+                margin-left: 8px;
             }
             .idea-desc {
-                font-size: 0.9em;
-                color: #e0e3e9;
+                font-size: 0.95em;
+                color: #b0b3b8;
+                margin-bottom: 15px;
             }
             .idea-status {
-                padding: 5px 10px;
+                padding: 5px 12px;
                 border-radius: 15px;
                 font-size: 0.8em;
                 font-weight: 700;
                 color: #131722;
-                margin-top: 8px;
                 display: inline-block;
             }
             
@@ -72,6 +93,36 @@ def local_css():
             .border-invalid { border-left-color: #ef5350; }
             .border-win { border-left-color: #26a69a; }
             .border-loss { border-left-color: #ef5350; }
+
+            /* Checklist View Styles */
+            .checklist-container {
+                max-width: 700px;
+                margin: auto;
+            }
+            .question-box {
+                background-color: #2a2e39;
+                padding: 20px;
+                border-radius: 10px;
+                border: 1px solid #444;
+            }
+            .final-result {
+                padding: 20px;
+                border-radius: 10px;
+                font-weight: bold;
+                text-align: center;
+                font-size: 1.2em;
+            }
+            .result-win { background-color: rgba(38, 166, 154, 0.2); border: 1px solid #26a69a; color: #26a69a;}
+            .result-loss { background-color: rgba(239, 83, 80, 0.2); border: 1px solid #ef5350; color: #ef5350;}
+            .result-invalid { background-color: rgba(108, 117, 125, 0.2); border: 1px solid #6c757d; color: #8a91a0;}
+            .result-entry { background-color: rgba(30, 136, 229, 0.2); border: 1px solid #1e88e5; color: #1e88e5;}
+
+            /* Responsive Grid for Idea List */
+            @media (max-width: 768px) {
+                .stMultiColumn {
+                    grid-template-columns: 1fr !important;
+                }
+            }
         </style>
     """, unsafe_allow_html=True)
 
@@ -174,20 +225,22 @@ def reset_idea(idea_id):
 
 def render_list_view():
     """Hiển thị giao diện danh sách các ý tưởng."""
-    st.title("Danh Sách Ý Tưởng Giao Dịch")
+    st.title("Checklist Giao Dịch Fractal")
 
-    with st.form(key="add_idea_form"):
-        col1, col2 = st.columns([1, 3])
-        with col1:
-            ticker = st.text_input("Mã Giao dịch", placeholder="VD: EURUSD")
-            htf = st.text_input("HTF", placeholder="VD: H4")
-        with col2:
+    with st.expander("Thêm Ý Tưởng Mới", expanded=True):
+        with st.form(key="add_idea_form"):
+            col1, col2 = st.columns([1, 1])
+            with col1:
+                ticker = st.text_input("Mã Giao dịch", placeholder="VD: EURUSD")
+            with col2:
+                htf = st.text_input("HTF", placeholder="VD: H4")
+            
             description = st.text_area("Mô tả ý tưởng", placeholder="VD: Đảo chiều tăng sau khi quét đáy tuần...")
-        
-        submitted = st.form_submit_button("Thêm Ý Tưởng")
-        if submitted and ticker and htf and description:
-            add_idea(ticker, htf, description)
-            st.rerun()
+            
+            submitted = st.form_submit_button("➕ Thêm Ý Tưởng")
+            if submitted and ticker and htf and description:
+                add_idea(ticker, htf, description)
+                st.rerun()
 
     st.markdown("---")
     
@@ -196,24 +249,12 @@ def render_list_view():
         return
 
     # Hiển thị danh sách 2 cột
-    cols = st.columns(2)
+    cols = st.columns(2, gap="large")
     for i, idea in enumerate(st.session_state.ideas):
         with cols[i % 2]:
             # Container cho mỗi ý tưởng
-            container_html = f"""
-                <div class="border-{idea['status']}" style="border-left-width: 5px; border-left-style: solid; background-color: #2a2e39; padding: 15px; border-radius: 8px; margin-bottom: 1rem;">
-                    <div style="display: flex; justify-content: space-between; align-items: center; width: 100%; margin-bottom: 8px;">
-                        <div>
-                            <span class="idea-ticker">{idea['ticker'].upper()}</span>
-                            <span class="idea-htf">({idea['htf']})</span>
-                        </div>
-                    </div>
-                    <div class="idea-desc" style="margin-bottom: 12px;">- {idea['description']}</div>
-                </div>
-            """
-            st.markdown(container_html, unsafe_allow_html=True)
+            container = st.container()
             
-            # Status badge
             status_text = ''
             if idea['status'] == 'pending':
                 status_text = question_status_map.get(idea['current_question'], 'Đang chờ')
@@ -226,19 +267,28 @@ def render_list_view():
             elif idea['status'] == 'loss':
                 status_text = 'Thua'
             
-            st.markdown(f'<span class="idea-status status-{idea['status']}">{status_text}</span>', unsafe_allow_html=True)
+            container.markdown(f"""
+            <div class="idea-card border-{idea['status']}">
+                <div class="idea-header">
+                    <div>
+                        <span class="idea-title">{idea['ticker'].upper()}</span>
+                        <span class="idea-htf">({idea['htf']})</span>
+                    </div>
+                </div>
+                <div class="idea-desc">{idea['description']}</div>
+                <div class="idea-status status-{idea['status']}">{status_text}</div>
+            </div>
+            """, unsafe_allow_html=True)
 
             # Buttons
-            btn_col1, btn_col2 = st.columns(2)
-            with btn_col1:
-                if st.button("Checklist", key=f"check_{idea['id']}"):
-                    st.session_state.current_idea_id = idea['id']
-                    st.session_state.current_view = 'checklist'
-                    st.rerun()
-            with btn_col2:
-                if st.button("Xóa", key=f"del_{idea['id']}"):
-                    delete_idea(idea['id'])
-                    st.rerun()
+            btn_col1, btn_col2 = container.columns(2)
+            if btn_col1.button("📝 Checklist", key=f"check_{idea['id']}"):
+                st.session_state.current_idea_id = idea['id']
+                st.session_state.current_view = 'checklist'
+                st.rerun()
+            if btn_col2.button("❌ Xóa", key=f"del_{idea['id']}"):
+                delete_idea(idea['id'])
+                st.rerun()
 
 def render_checklist_view():
     """Hiển thị giao diện checklist chi tiết."""
@@ -248,58 +298,60 @@ def render_checklist_view():
         st.session_state.current_view = 'list'
         st.rerun()
         return
-
-    st.title(f"Checklist cho: {idea['ticker'].upper()} ({idea['htf']})")
-    st.caption(idea['description'])
-    st.markdown("---")
     
-    # Hiển thị câu hỏi hoặc kết quả
-    if idea['status'] == 'pending':
-        question_key = idea['current_question']
-        question_text = question_status_map.get(question_key, "").replace("Chờ", "Có tín hiệu") + "?"
-        st.subheader(question_text)
+    with st.container():
+        st.markdown(f'<div class="checklist-container">', unsafe_allow_html=True)
         
-        col1, col2 = st.columns(2)
-        with col1:
-            if st.button("Có", key=f"yes_{question_key}"):
-                handle_answer(idea['id'], question_key, True)
-                st.rerun()
-        with col2:
-            if st.button("Không", key=f"no_{question_key}"):
-                handle_answer(idea['id'], question_key, False)
-                st.rerun()
+        st.header(f"Checklist: {idea['ticker'].upper()} ({idea['htf']})")
+        st.caption(idea['description'])
+        st.markdown("---")
+        
+        # Hiển thị câu hỏi hoặc kết quả
+        if idea['status'] == 'pending':
+            with st.container():
+                st.markdown('<div class="question-box">', unsafe_allow_html=True)
+                question_key = idea['current_question']
+                question_text = question_status_map.get(question_key, "").replace("Chờ", "Có tín hiệu") + "?"
+                st.subheader(question_text)
+                
+                col1, col2 = st.columns(2)
+                if col1.button("✅ Có", key=f"yes_{question_key}"):
+                    handle_answer(idea['id'], question_key, True)
+                    st.rerun()
+                if col2.button("❌ Không", key=f"no_{question_key}"):
+                    handle_answer(idea['id'], question_key, False)
+                    st.rerun()
+                st.markdown('</div>', unsafe_allow_html=True)
 
-    elif idea['status'] == 'entry':
-        st.info("Thiết lập hợp lệ. Ghi nhận kết quả giao dịch:")
-        col1, col2 = st.columns(2)
-        with col1:
-            if st.button("Thắng (Win)"):
+        elif idea['status'] == 'entry':
+            st.markdown('<div class="final-result result-entry">Thiết lập hợp lệ. Ghi nhận kết quả giao dịch:</div>', unsafe_allow_html=True)
+            col1, col2 = st.columns(2)
+            if col1.button("🏆 Thắng (Win)"):
                 record_outcome(idea['id'], 'win')
                 st.rerun()
-        with col2:
-            if st.button("Thua (Loss)"):
+            if col2.button("💔 Thua (Loss)"):
                 record_outcome(idea['id'], 'loss')
                 st.rerun()
 
-    elif idea['status'] == 'invalid':
-        st.error(f"Không hợp lệ: {idea['result_text']}")
-    
-    elif idea['status'] == 'win':
-        st.success("KẾT QUẢ CUỐI CÙNG: THẮNG (WIN)")
-    
-    elif idea['status'] == 'loss':
-        st.error("KẾT QUẢ CUỐI CÙNG: THUA (LOSS)")
+        elif idea['status'] == 'invalid':
+            st.markdown(f'<div class="final-result result-invalid">Không hợp lệ: {idea["result_text"]}</div>', unsafe_allow_html=True)
+        
+        elif idea['status'] == 'win':
+            st.markdown('<div class="final-result result-win">KẾT QUẢ CUỐI CÙNG: THẮNG (WIN)</div>', unsafe_allow_html=True)
+        
+        elif idea['status'] == 'loss':
+            st.markdown('<div class="final-result result-loss">KẾT QUẢ CUỐI CÙNG: THUA (LOSS)</div>', unsafe_allow_html=True)
 
-    st.markdown("---")
-    col_b1, col_b2 = st.columns([1,1])
-    with col_b1:
-        if st.button("Quay lại Danh sách"):
+        st.markdown("---")
+        col_b1, col_b2 = st.columns([1,1])
+        if col_b1.button("◀️ Quay lại Danh sách"):
             st.session_state.current_view = 'list'
             st.rerun()
-    with col_b2:
-        if st.button("Reset Ý tưởng này"):
+        if col_b2.button("🔄 Reset Ý tưởng này"):
             reset_idea(idea['id'])
             st.rerun()
+        
+        st.markdown('</div>', unsafe_allow_html=True)
 
 # --- Main App Logic ---
 local_css()
